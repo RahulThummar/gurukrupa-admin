@@ -37,7 +37,7 @@ const Home = () => {
   const handleCloseAdd = () => {
     setAdd(false);
     axios
-      .get(`https://62affa883bbf46a3522964c7.mockapi.io/crudDemo`)
+      .get(`https://653d3798f52310ee6a9a00c9.mockapi.io/apione/productlistone`)
       .then((respone) => {
         setUser(respone.data);
       });
@@ -76,6 +76,7 @@ const Home = () => {
     setUser(result.data);
   };
   console.log(users, "rahul thummar");
+
   const deleteUser = async (id) => {
     await axios.delete(
       `https://653d3798f52310ee6a9a00c9.mockapi.io/apione/productlistone${id}`
@@ -85,7 +86,7 @@ const Home = () => {
 
   return (
     <>
-      <nav> 
+      <nav>
         <div>
           {/* ------ addbutton ------- */}
           <button
@@ -96,8 +97,6 @@ const Home = () => {
           </button>
         </div>
       </nav>
-
-       
 
       <div className="table-striped table-hover table table-sm ">
         <div className="py-2 ">
@@ -116,6 +115,7 @@ const Home = () => {
             <tbody>
               {users.map((user) => (
                 <tr>
+                  as
                   <th scope="row">{user._id}</th>
                   <td>{user.productName}</td>
                   <td>{user.des}</td>

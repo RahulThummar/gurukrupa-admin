@@ -1,75 +1,73 @@
-import { Form, Button } from "react-bootstrap";
 import Modal from "react-bootstrap/Modal";
 import React, { useState } from "react";
 import axios from "axios";
-import { useFormik } from "formik";
-import { useParams } from "react-router-dom";
-import { Link } from "react-router-dom";
-
-const validate = (values) => {
-  console.log(values, "validate function");
-  let errors = {};
-
-  if (!values.name) {
-    errors.name = "Required";
-  } else if (values.name.length > 15) {
-    errors.name = "Must be 15 character or less";
-  }
-
-  if (!values.email) {
-    errors.email = "Required";
-  } else if (!/^[A-Z0-9.%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i.test(values.email)) {
-    errors.email = "Invalid email format";
-  }
-
-  if (!values.phone) {
-    errors.phone = "Required";
-  } else if (values.phone.toString().length != 10) {
-    errors.phone = "Invalid Number";
-  }
-
-  if (!values.address) {
-    errors.address = "Required";
-  }
-
-  if (!values.password) {
-    errors.password = "Required";
-  } else if (values.password.toString().length < 4) {
-    errors.password = "Password must be more than 4 Characters";
-  }
-  console.log(errors, "error logs ");
-  return errors;
-};
+import { Formik } from "formik";
+import * as Yup from "yup";
+import { useRef } from "react";
 
 const AddUser11 = (props) => {
-  const [User, setUser] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    address: "",
-    password: "",
+  const runforms = useRef();
+  const [images, setImages] = useState([]);
+
+  // const formik = useFormik({
+  //   initialValues: {
+  //     name: "",
+  //     email: "",
+  //     phone: "",
+  //     address: "",
+  //     password: "",
+  //   },
+  //   onSubmit: async (values) => {
+  //     await axios
+  //       .post("https://62affa883bbf46a3522964c7.mockapi.io/crudDemo", values)
+  //       .then((response) => {
+  //         if (response) {
+  //           props.onHide();
+  //         }
+  //       });
+  //     console.log(values, "new added !!!!");
+  //   },
+  //   validate,
+  // });
+
+  const errorContainer = (form, field) => {
+    return form.touched[field] && form.errors[field] ? (
+      <span className="error text-danger">{form.errors[field]}</span>
+    ) : null;
+  };
+  const formAttr = (form, field) => ({
+    onBlur: form.handleBlur,
+    onChange: form.handleChange,
+    value: form.values[field],
   });
 
-  const formik = useFormik({
-    initialValues: {
-      name: "",
-      email: "",
-      phone: "",
-      address: "",
-      password: "",
-    },
-    onSubmit: async (values) => {
-      await axios
-        .post("https://62affa883bbf46a3522964c7.mockapi.io/crudDemo", values)
-        .then((response) => {
-          if (response) {
-            props.onHide();
-          }
-        });
-      console.log(values, "new added !!!!");
-    },
-    validate,
-  });
+  const submitFormData = async (formData, resetForm) => {
+    formData.img = images;
+    await axios
+      .post(
+        "https://653d3798f52310ee6a9a00c9.mockapi.io/apione/productlistone",
+        formData
+      )
+      .then((response) => {
+        if (response) {
+          props.onHide();
+        }
+      });
+  };
+
+  const handleRemoveProdImg = (e) => {
+    var x = images;
+    x.splice(e, 1);
+    setImages([...x]);
+  };
+
+  const addImagesToProductList = (e) => {
+    const selectedImages = e.target.files || e.dataTransfer.files;
+    const imageArray = Array.from(selectedImages);
+    setImages(imageArray);
+    runforms.current.setFieldValue("img", imageArray);
+    console.log(runforms, "runforms");
+  };
 
   return (
     <>
@@ -97,95 +95,156 @@ const AddUser11 = (props) => {
           </Modal.Header>
 
           <Modal.Body>
-            <Form onSubmit={formik.handleSubmit}>
-              <Form.Group className="mb-3">
-                <Form.Label>Name</Form.Label>
-                <Form.Control
-                  type="text"
-                  name="name"
-                  placeholder="Enter your name"
-                  value={formik.values.name}
-                  onChange={formik.handleChange}
-                ></Form.Control>
-
-                {formik.errors.name ? (
-                  <div className="error">{formik.errors.name}</div>
-                ) : null}
-              </Form.Group>
-
-              <Form.Group className="mb-3">
-                <Form.Label>Email</Form.Label>
-                <Form.Control
-                  type="email"
-                  name="email"
-                  placeholder="Enter your email"
-                  value={formik.values.email}
-                  onChange={formik.handleChange}
-                ></Form.Control>
-
-                {formik.errors.email ? (
-                  <div className="error">{formik.errors.email}</div>
-                ) : null}
-              </Form.Group>
-
-              <Form.Group className="mb-3">
-                <Form.Label>Phone </Form.Label>
-                <Form.Control
-                  type="phone"
-                  name="phone"
-                  placeholder="Enter your phone"
-                  value={formik.values.phone}
-                  onChange={formik.handleChange}
-                ></Form.Control>
-
-                {formik.errors.phone ? (
-                  <div className="error">{formik.errors.phone}</div>
-                ) : null}
-              </Form.Group>
-
-              <Form.Group className="mb-3">
-                <Form.Label>Address</Form.Label>
-                <Form.Control
-                  type="address"
-                  name="address"
-                  placeholder="Enter your address"
-                  value={formik.values.address}
-                  onChange={formik.handleChange}
-                ></Form.Control>
-
-                {formik.errors.address ? (
-                  <div className="error">{formik.errors.address}</div>
-                ) : null}
-              </Form.Group>
-
-              <Form.Group className="mb-3">
-                <Form.Label>Password</Form.Label>
-                <Form.Control
-                  type="password"
-                  name="password"
-                  placeholder="Enter your password"
-                  value={formik.values.password}
-                  onChange={formik.handleChange}
-                ></Form.Control>
-
-                {formik.errors.password ? (
-                  <div className="error">{formik.errors.password}</div>
-                ) : null}
-              </Form.Group>
-
-              <Form.Group className="mb-3">
-                <Button className="button-submit" type="submit">
-                  ADD
-                </Button>
-                <Button
-                  className="button-cancle"
-                  variant="secondary"
-                  onClick={props.onHide}
+            <Formik
+              innerRef={runforms}
+              enableReinitialize
+              initialValues={{
+                _id: Math.floor(100000 + Math.random() * 900000).toString(),
+                createdAt: new Date().toISOString(),
+                img: images,
+                productName: "",
+                price: "",
+                color: "",
+                badge: "",
+                des: "",
+              }}
+              validationSchema={Yup.object({
+                img: Yup.array()
+                  .min(1, "imgs must have at least 1 element.")
+                  .required("imgs is required."),
+                productName: Yup.string().required("productName is required."),
+                price: Yup.string().required("price is required."),
+                color: Yup.string().required("color is required."),
+                badge: Yup.string().required("badge is required."),
+                des: Yup.string().required("description is required."),
+              })}
+              onSubmit={(formData, { resetForm }) =>
+                submitFormData(formData, resetForm)
+              }
+            >
+              {(runform) => (
+                <form
+                  className="row mb-0 frm-logo-top"
+                  onSubmit={runform.handleSubmit}
                 >
-                  Close
-                </Button>
-              </Form.Group>
-            </Form>
+                  <div className="col-12 mb-3">
+                    <label className="label-comn-text mb-2 d-block">
+                      Images
+                    </label>
+                    <input
+                      type="file"
+                      name="img"
+                      multiple
+                      className="form-control comn-input-style"
+                      accept="image/*"
+                      onChangeCapture={(e) => addImagesToProductList(e)}
+                    />
+                    {errorContainer(runform, "img")}
+                  </div>
+                  {images.map((src, i) => {
+                    return (
+                      <>
+                        <div className="product-img-div position-relative">
+                          <img
+                            key={i}
+                            src={URL.createObjectURL(src)}
+                            loading="lazy"
+                            alt="Products"
+                          />
+                          <button
+                            className="del-img-btn border-0"
+                            onClick={() => handleRemoveProdImg(i)}
+                          >
+                            -
+                          </button>
+                        </div>
+                      </>
+                    );
+                  })}
+                  <div className="col-12 mb-3">
+                    <label className="label-comn-text mb-2 d-block">
+                      Product Name
+                    </label>
+                    <div className="position-relative">
+                      <input
+                        type="text"
+                        name="productName"
+                        {...formAttr(runform, "productName")}
+                        className="form-control comn-input-style"
+                        placeholder="Enter productName"
+                      />
+                    </div>
+                    {errorContainer(runform, "productName")}
+                  </div>
+                  <div className="col-12 mb-3">
+                    <label className="label-comn-text mb-2 d-block">
+                      Price
+                    </label>
+                    <div className="position-relative">
+                      <input
+                        type="number"
+                        name="price"
+                        {...formAttr(runform, "price")}
+                        className="form-control comn-input-style"
+                        placeholder="Enter price"
+                      />
+                    </div>
+                    {errorContainer(runform, "price")}
+                  </div>
+                  <div className="col-12 mb-3">
+                    <label className="label-comn-text mb-2 d-block">
+                      Color
+                    </label>
+                    <div className="position-relative">
+                      <input
+                        type="text"
+                        name="color"
+                        {...formAttr(runform, "color")}
+                        className="form-control comn-input-style"
+                        placeholder="Enter color"
+                      />
+                    </div>
+                    {errorContainer(runform, "color")}
+                  </div>
+                  <div className="col-12 mb-3">
+                    <label className="label-comn-text mb-2 d-block">
+                      Badge
+                    </label>
+                    <div className="position-relative">
+                      <input
+                        type="text"
+                        name="badge"
+                        {...formAttr(runform, "badge")}
+                        className="form-control comn-input-style"
+                        placeholder="Enter badge"
+                      />
+                    </div>
+                    {errorContainer(runform, "badge")}
+                  </div>
+                  <div className="col-12 mb-3">
+                    <label className="label-comn-text mb-2 d-block">
+                      Description
+                    </label>
+                    <div className="position-relative">
+                      <input
+                        type="text"
+                        name="des"
+                        {...formAttr(runform, "des")}
+                        className="form-control comn-input-style"
+                        placeholder="Enter des"
+                      />
+                    </div>
+                    {errorContainer(runform, "des")}
+                  </div>
+
+                  <div className="col-12 pt-md-4 pt-3 text-center">
+                    <button type="submit" className="btn-comn-class w-100">
+                      Add
+                    </button>
+                  </div>
+                </form>
+              )}
+            </Formik>
           </Modal.Body>
         </div>
       </Modal>
